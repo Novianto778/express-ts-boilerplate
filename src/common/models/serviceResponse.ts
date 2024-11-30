@@ -1,6 +1,11 @@
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 
+type ValidationErrorResponse = {
+  path: string;
+  message: string;
+}[];
+
 export class ServiceResponse<T = null> {
   readonly success: boolean;
   readonly message: string;
