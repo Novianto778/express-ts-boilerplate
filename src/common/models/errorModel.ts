@@ -38,7 +38,7 @@ export class ValidationError extends Error {
   getErrors() {
     return this.errors.issues
       .map((issue: ZodIssue) => {
-        return `${issue.path.join(".")} ${issue.message}`;
+        return `${issue.path.join(".")}: ${issue.message}`;
       })
       .join(", ");
   }

@@ -21,7 +21,7 @@ export const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => 
   if (err instanceof ZodError) {
     const errorMsg = err.issues
       .map((issue) => {
-        return `${issue.path.join(".")} ${issue.message}`;
+        return `${issue.path.join(".")}: ${issue.message}`;
       })
       .join(", ");
 

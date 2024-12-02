@@ -1,8 +1,10 @@
 import { StatusCodes } from "http-status-codes";
 
-import type { User } from "@/api/user/userModel";
+import type { GetUser, User, UserCreate } from "@/api/user/userModel";
 import { UserRepository } from "@/api/user/userRepository";
+import { AppError } from "@/common/models/errorModel";
 import { ServiceResponse } from "@/common/models/serviceResponse";
+import { GetUserSchema } from "./userModel";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -12,8 +14,8 @@ export class UserService {
   }
 
   // Retrieves all users from the database
-  async findAll(): Promise<ServiceResponse<User[] | null>> {
-    const users = await this.userRepository.findAllAsync();
+  async findAll(queryParams: GetUser["query"]): Promise<ServiceResponse<User[] | null>> {
+    const users = await this.userRepository.findAllAsync(queryParams);
     if (!users || users.length === 0) {
       return ServiceResponse.success<User[]>("No users found", []);
     }
@@ -24,7 +26,39 @@ export class UserService {
   async findById(id: number): Promise<ServiceResponse<User | null>> {
     const user = await this.userRepository.findByIdAsync(id);
     if (!user) {
-      return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
+      throw new AppError("User not exist", StatusCodes.NOT_FOUND);
+    }
+    return ServiceResponse.success<User>("User found", user);
+  }
+
+  // Creates a new user in the database
+  async create(user: UserCreate): Promise<ServiceResponse<User>> {
+    const newUser = await this.userRepository.createAsync(user);
+    return ServiceResponse.success<User>("User created", newUser, StatusCodes.CREATED);
+  }
+
+  // Updates an existing user in the database
+  async update(id: number, user: UserCreate): Promise<ServiceResponse<User | null>> {
+    const updatedUser = await this.userRepository.updateAsync(id, user);
+    if (!updatedUser) {
+      throw new AppError("User not exist", StatusCodes.NOT_FOUND);
+    }
+    return ServiceResponse.success<User>("User updated", updatedUser);
+  }
+
+  // Deletes a user from the database
+  async delete(id: number): Promise<ServiceResponse<User | null>> {
+    const deletedUser = await this.userRepository.deleteAsync(id);
+    if (!deletedUser) {
+      throw new AppError("User not exist", StatusCodes.NOT_FOUND);
+    }
+    return ServiceResponse.success<User>("User deleted", deletedUser);
+  }
+
+  async getByEmail(email: string): Promise<ServiceResponse<User | null>> {
+    const user = await this.userRepository.getByEmailAsync(email);
+    if (!user) {
+      throw new AppError("User not exist", StatusCodes.NOT_FOUND);
     }
     return ServiceResponse.success<User>("User found", user);
   }
