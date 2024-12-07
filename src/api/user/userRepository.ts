@@ -1,4 +1,4 @@
-import type { GetUser, User, UserCreate } from "@/api/user/userModel";
+import type { GetAllUsers, User, UserCreate } from "@/api/user/userModel";
 import type { QueryFilter } from "@/common/utils/queryParams";
 
 export const users: User[] = [
@@ -21,8 +21,8 @@ export const users: User[] = [
 ];
 
 export class UserRepository {
-  async findAllAsync(queryParams: GetUser["query"]): Promise<User[]> {
-    const filters: QueryFilter<GetUser["query"]> = {};
+  async findAllAsync(queryParams: GetAllUsers["query"]): Promise<User[]> {
+    const filters: QueryFilter<GetAllUsers["query"]> = {};
 
     // Build filters dynamically based on queryParams
     Object.entries(queryParams).forEach(([key, value]) => {

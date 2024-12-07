@@ -12,7 +12,7 @@
       "suspicious": {
         "noExplicitAny": "off",
         "noConfusingVoidType": "off",
-        "noConsole": "off"
+        "noConsole": "warn"
       },
       "style": {
         "noUselessElse": "off",
@@ -22,7 +22,8 @@
         "noForEach": "off"
       },
       "correctness": {
-        "noUnusedImports": "off"
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn"
       }
     }
   }

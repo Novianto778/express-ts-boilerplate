@@ -1,10 +1,9 @@
 import { StatusCodes } from "http-status-codes";
 
-import type { GetUser, User, UserCreate } from "@/api/user/userModel";
+import { type GetAllUsers, type User, type UserCreate, type UserReturn, UserReturnSchema } from "@/api/user/userModel";
 import { UserRepository } from "@/api/user/userRepository";
 import { AppError } from "@/common/models/errorModel";
 import { ServiceResponse } from "@/common/models/serviceResponse";
-import { GetUserSchema } from "./userModel";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -14,7 +13,7 @@ export class UserService {
   }
 
   // Retrieves all users from the database
-  async findAll(queryParams: GetUser["query"]): Promise<ServiceResponse<User[] | null>> {
+  async findAll(queryParams: GetAllUsers["query"]): Promise<ServiceResponse<User[] | null>> {
     const users = await this.userRepository.findAllAsync(queryParams);
     if (!users || users.length === 0) {
       return ServiceResponse.success<User[]>("No users found", []);
@@ -23,12 +22,18 @@ export class UserService {
   }
 
   // Retrieves a single user by their ID
-  async findById(id: number): Promise<ServiceResponse<User | null>> {
+  async findById(id: number): Promise<ServiceResponse<UserReturn | null>> {
     const user = await this.userRepository.findByIdAsync(id);
     if (!user) {
       throw new AppError("User not exist", StatusCodes.NOT_FOUND);
     }
-    return ServiceResponse.success<User>("User found", user);
+    // transform user to UserReturn
+    const res = UserReturnSchema.safeParse(user);
+    if (res.error) {
+      throw new AppError("Invalid user data", StatusCodes.BAD_REQUEST);
+    }
+
+    return ServiceResponse.success<UserReturn>("User found", res.data);
   }
 
   // Creates a new user in the database

@@ -8,13 +8,9 @@ export const handleServiceResponse = (serviceResponse: ServiceResponse<any>, res
   return response.status(serviceResponse.statusCode).send(serviceResponse);
 };
 
-export const validateRequest =
-  (schemas: { body?: ZodSchema; query?: ZodSchema; params?: ZodSchema }) =>
-  (req: Request, res: Response, next: NextFunction) => {
-    const queryParams = parseQueryParams(req);
+export const validateRequest = (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
+  const queryParams = parseQueryParams(req);
 
-    if (schemas.params) schemas.params.parse(req.params);
-    if (schemas.query) schemas.query.parse(queryParams);
-    if (schemas.body) schemas.body.parse(req.body);
-    next();
-  };
+  schema.parse({ body: req.body, query: queryParams, params: req.params });
+  next();
+};

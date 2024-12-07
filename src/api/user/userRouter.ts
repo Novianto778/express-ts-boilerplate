@@ -3,7 +3,14 @@ import express, { type Router } from "express";
 import { z } from "zod";
 
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
-import { GetUserSchema, UserCreateSchema, UserSchema } from "@/api/user/userModel";
+import {
+  GetAllUsersSchema,
+  GetUserByEmailSchema,
+  GetUserSchema,
+  UpdateUserSchema,
+  UserCreateSchema,
+  UserSchema,
+} from "@/api/user/userModel";
 import { validateRequest } from "@/common/utils/httpHandlers";
 import { userController } from "./userController";
 
@@ -19,13 +26,7 @@ userRegistry.registerPath({
   responses: createApiResponse(z.array(UserSchema), "Success"),
 });
 
-userRouter.get(
-  "/",
-  validateRequest({
-    query: GetUserSchema.shape.query,
-  }),
-  userController.getUsers,
-);
+userRouter.get("/", validateRequest(GetAllUsersSchema), userController.getUsers);
 
 userRegistry.registerPath({
   method: "get",
@@ -35,13 +36,7 @@ userRegistry.registerPath({
   responses: createApiResponse(UserSchema, "Success"),
 });
 
-userRouter.get(
-  "/:id",
-  validateRequest({
-    params: GetUserSchema.shape.params,
-  }),
-  userController.getUser,
-);
+userRouter.get("/:id", validateRequest(GetUserSchema), userController.getUser);
 
 userRegistry.registerPath({
   method: "post",
@@ -66,14 +61,7 @@ userRegistry.registerPath({
   responses: createApiResponse(UserSchema, "Success"),
 });
 
-userRouter.put(
-  "/:id",
-  validateRequest({
-    params: GetUserSchema.shape.params,
-    body: UserCreateSchema,
-  }),
-  userController.updateUser,
-);
+userRouter.put("/:id", validateRequest(UpdateUserSchema), userController.updateUser);
 
 userRegistry.registerPath({
   method: "delete",
@@ -83,20 +71,6 @@ userRegistry.registerPath({
   responses: createApiResponse(UserSchema, "Success"),
 });
 
-userRouter.delete(
-  "/:id",
-  validateRequest({
-    params: GetUserSchema.shape.params,
-  }),
-  userController.deleteUser,
-);
+userRouter.delete("/:id", validateRequest(GetUserSchema), userController.deleteUser);
 
-userRouter.get(
-  "/email/:email",
-  validateRequest({
-    params: z.object({
-      email: z.string().email(),
-    }),
-  }),
-  userController.getByEmail,
-);
+userRouter.get("/email/:email", validateRequest(GetUserByEmailSchema), userController.getByEmail);
