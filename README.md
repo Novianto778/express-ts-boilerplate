@@ -1,4 +1,5 @@
 # 🚀 Express TypeScript Boilerplate 2024
+## Heavily inspired by [express-typescript-boilerplate](https://github.com/edwinhern/express-typescript-2024)
 
 [![Build](https://github.com/edwinhern/express-typescript-2024/actions/workflows/build.yml/badge.svg)](https://github.com/edwinhern/express-typescript-2024/actions/workflows/build.yml)
 [![Test](https://github.com/edwinhern/express-typescript-2024/actions/workflows/test.yml/badge.svg)](https://github.com/edwinhern/express-typescript-2024/actions/workflows/test.yml)
@@ -43,28 +44,22 @@ This boilerplate aims to:
 
 ## 🛠️ Getting Started
 
-### Video Demo
+### Step 1: 🚀 Initial Setup
 
-For a visual guide, watch the [video demo](https://github.com/user-attachments/assets/b1698dac-d582-45a0-8d61-31131732b74e) to see the setup and running of the project.
+- Clone the repository: `git clone https://github.com/novianto778/express-typescript-boilerplate.git`
+- Navigate: `cd express-typescript-boilerplate`
+- Install dependencies: `pnpm install --frozen-lockfile`
 
-### Step-by-Step Guide
-
-#### Step 1: 🚀 Initial Setup
-
-- Clone the repository: `git clone https://github.com/edwinhern/express-typescript-2024.git`
-- Navigate: `cd express-typescript-2024`
-- Install dependencies: `npm ci`
-
-#### Step 2: ⚙️ Environment Configuration
+### Step 2: ⚙️ Environment Configuration
 
 - Create `.env`: Copy `.env.template` to `.env`
 - Update `.env`: Fill in necessary environment variables
 
-#### Step 3: 🏃‍♂️ Running the Project
+### Step 3: 🏃‍♂️ Running the Project
 
-- Development Mode: `npm run dev`
-- Building: `npm run build`
-- Production Mode: Set `.env` to `NODE_ENV="production"` then `npm run build && npm run start`
+- Development Mode: `pnpm dev`
+- Building: `pnpm build`
+- Production Mode: Set `.env` to `NODE_ENV="production"` then `pnpm build && pnpm start`
 
 ## 🤝 Feedback and Contributions
 
