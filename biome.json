@@ -11,7 +11,8 @@
       "recommended": true,
       "suspicious": {
         "noExplicitAny": "off",
-        "noConfusingVoidType": "off"
+        "noConfusingVoidType": "off",
+        "noConsole": "off"
       },
       "style": {
         "noUselessElse": "off",
@@ -19,6 +20,9 @@
       },
       "complexity": {
         "noForEach": "off"
+      },
+      "correctness": {
+        "noUnusedImports": "off"
       }
     }
   }
