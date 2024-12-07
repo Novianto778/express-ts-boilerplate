@@ -15,7 +15,7 @@ const addErrorToRequestLog: ErrorRequestHandler = (err, _req, res, next) => {
   next(err);
 };
 
-export const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
+export const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   logger.error(err, { message: err.message, url: req.originalUrl, method: req.method });
 
   if (err instanceof ZodError) {
