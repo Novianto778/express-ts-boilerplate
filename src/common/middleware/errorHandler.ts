@@ -5,6 +5,7 @@ import { ZodError } from "zod";
 import { AppError, AuthenticationError, ValidationError } from "../models/errorModel";
 import { ServiceResponse } from "../models/serviceResponse";
 import { handleServiceResponse } from "../utils/httpHandlers";
+import { zodErrorMessage } from "../utils/zodError";
 
 const unexpectedRequest: RequestHandler = (_req, res) => {
   res.sendStatus(StatusCodes.NOT_FOUND);
@@ -15,28 +16,32 @@ const addErrorToRequestLog: ErrorRequestHandler = (err, _req, res, next) => {
   next(err);
 };
 
-export const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
-  logger.error(err, { message: err.message, url: req.originalUrl, method: req.method });
+const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
+  logger.error(err, {
+    message: err.message,
+    url: req.originalUrl,
+    method: req.method,
+  });
 
   if (err instanceof ZodError) {
-    const errorMsg = err.issues
-      .map((issue) => {
-        return `${issue.path.join(".")}: ${issue.message}`;
-      })
-      .join(", ");
+    const errorMsg = zodErrorMessage(err);
 
     const errorRes = ServiceResponse.failure(errorMsg, null, StatusCodes.BAD_REQUEST);
     return handleServiceResponse(errorRes, res);
   }
 
   if (err instanceof ValidationError) {
-    const errorRes = ServiceResponse.failure(err.getErrors(), null, StatusCodes.BAD_REQUEST);
+    const errorRes = ServiceResponse.failure(err.getErrors(), null, err.getStatusCodes() || StatusCodes.BAD_REQUEST);
     return handleServiceResponse(errorRes, res);
   } else if (err instanceof AuthenticationError) {
-    const errorRes = ServiceResponse.failure(err.getErrors(), null, StatusCodes.UNAUTHORIZED);
+    const errorRes = ServiceResponse.failure(err.getErrors(), null, err.getStatusCodes() || StatusCodes.UNAUTHORIZED);
     return handleServiceResponse(errorRes, res);
   } else if (err instanceof AppError) {
-    const errorRes = ServiceResponse.failure(err.message, null, StatusCodes.INTERNAL_SERVER_ERROR);
+    const errorRes = ServiceResponse.failure(
+      err.message,
+      null,
+      err.getStatusCodes() || StatusCodes.INTERNAL_SERVER_ERROR,
+    );
     return handleServiceResponse(errorRes, res);
   } else {
     const errorRes = ServiceResponse.failure("An error occurred", null, StatusCodes.INTERNAL_SERVER_ERROR);
@@ -44,4 +49,6 @@ export const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) =>
   }
 };
 
-export default () => [unexpectedRequest, addErrorToRequestLog];
+const errorMiddleware = () => [addErrorToRequestLog, globalErrorHandler, unexpectedRequest];
+
+export default errorMiddleware;

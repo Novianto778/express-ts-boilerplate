@@ -57,3 +57,7 @@ export const UpdateUserSchema = z.object({
 export const GetUserByEmailSchema = z.object({
   params: z.object({ email: z.string().email() }),
 });
+
+export const CreateUserSchema = z.object({
+  body: UserCreateSchema,
+});

@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import {
+  CreateUserSchema,
   GetAllUsersSchema,
   GetUserByEmailSchema,
   GetUserSchema,
@@ -48,7 +49,7 @@ userRegistry.registerPath({
   responses: createApiResponse(UserSchema, "Success"),
 });
 
-userRouter.post("/", userController.createUser);
+userRouter.post("/", validateRequest(CreateUserSchema), userController.createUser);
 
 userRegistry.registerPath({
   method: "put",

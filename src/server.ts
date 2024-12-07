@@ -1,13 +1,13 @@
 import cors from "cors";
 import express, { type Express } from "express";
+import "express-async-errors";
 import helmet from "helmet";
 import { pino } from "pino";
-import "express-async-errors";
 
 import { openAPIRouter } from "@/api-docs/openAPIRouter";
 import { healthCheckRouter } from "@/api/healthCheck/healthCheckRouter";
 import { userRouter } from "@/api/user/userRouter";
-import { globalErrorHandler } from "@/common/middleware/errorHandler";
+import errorMiddleware from "@/common/middleware/errorHandler";
 import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
@@ -36,7 +36,6 @@ app.use("/users", userRouter);
 app.use(openAPIRouter);
 
 // Error handlers
-// app.use(errorHandler());
-app.use(globalErrorHandler);
+app.use(errorMiddleware());
 
 export { app, logger };

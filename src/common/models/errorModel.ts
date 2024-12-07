@@ -2,20 +2,10 @@ import { StatusCodes } from "http-status-codes";
 import type { ZodError, ZodIssue } from "zod";
 
 export class AuthenticationError extends Error {
-  private status;
   private statusCodes: StatusCodes;
-  constructor(
-    message = "You must be authenticated to do this action",
-    status = 401,
-    statusCodes = StatusCodes.UNAUTHORIZED,
-  ) {
+  constructor(message = "You must be authenticated to do this action", statusCodes = StatusCodes.UNAUTHORIZED) {
     super(message);
-    this.status = status;
     this.statusCodes = statusCodes;
-  }
-
-  getStatus() {
-    return this.status;
   }
 
   getErrors() {
@@ -29,10 +19,12 @@ export class AuthenticationError extends Error {
 
 export class ValidationError extends Error {
   private errors: ZodError;
+  private statusCodes: StatusCodes;
 
-  constructor(errors: ZodError) {
-    super("An validation error occured");
+  constructor(errors: ZodError, message = "An validation error occured", statusCodes = StatusCodes.BAD_REQUEST) {
+    super(message);
     this.errors = errors;
+    this.statusCodes = statusCodes;
   }
 
   getErrors() {
@@ -42,19 +34,17 @@ export class ValidationError extends Error {
       })
       .join(", ");
   }
+
+  getStatusCodes() {
+    return this.statusCodes;
+  }
 }
 
 export class AppError extends Error {
-  private status;
   private statusCodes: StatusCodes;
-  constructor(message = "An error occured", status = 500, statusCodes = StatusCodes.INTERNAL_SERVER_ERROR) {
+  constructor(message = "An error occured", statusCodes = StatusCodes.INTERNAL_SERVER_ERROR) {
     super(message);
-    this.status = status;
     this.statusCodes = statusCodes;
-  }
-
-  getStatus() {
-    return this.status;
   }
 
   getErrors() {
