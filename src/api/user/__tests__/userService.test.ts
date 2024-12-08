@@ -16,7 +16,8 @@ describe("userService", () => {
       id: 1,
       name: "Alice",
       email: "alice@example.com",
-      age: 42,
+      password: "password",
+      role: "USER",
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -24,7 +25,8 @@ describe("userService", () => {
       id: 2,
       name: "Bob",
       email: "bob@example.com",
-      age: 21,
+      password: "password",
+      role: "USER",
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -104,7 +106,7 @@ describe("userService", () => {
         id: mockUser?.id,
         name: mockUser?.name,
         email: mockUser?.email,
-        age: mockUser?.age,
+        role: mockUser?.role,
       });
     });
 

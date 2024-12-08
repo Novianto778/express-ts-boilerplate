@@ -42,7 +42,7 @@ export class UserService {
 
   // Creates a new user in the database
   async create(user: UserCreate): Promise<ServiceResponse<User>> {
-    const newUser = await this.userRepository.createAsync(user);
+    const newUser = await this.userRepository.createAsync(user, this.select);
     return ServiceResponse.success<User>("User created", newUser, StatusCodes.CREATED);
   }
 

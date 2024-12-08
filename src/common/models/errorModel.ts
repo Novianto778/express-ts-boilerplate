@@ -1,3 +1,4 @@
+import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { StatusCodes } from "http-status-codes";
 import type { ZodError, ZodIssue } from "zod";
 
@@ -49,6 +50,34 @@ export class AppError extends Error {
 
   getErrors() {
     return this.message;
+  }
+
+  getStatusCodes() {
+    return this.statusCodes;
+  }
+}
+
+export class PrismaClientError extends Error {
+  private errors: PrismaClientKnownRequestError;
+  private statusCodes: StatusCodes;
+
+  constructor(errors: PrismaClientKnownRequestError, statusCodes = StatusCodes.INTERNAL_SERVER_ERROR) {
+    super("A prisma error occured");
+    this.errors = errors;
+    this.statusCodes = statusCodes;
+  }
+
+  getErrors() {
+    switch (this.errors.code) {
+      case "P2002":
+        return `Duplicate field value ${this.errors.meta?.target}`;
+      case "P2014":
+        return `Invalid ID ${this.errors.meta?.target}`;
+      case "P2003":
+        return `Invalid input data ${this.errors.meta?.target}`;
+      default:
+        return `Something went wrong ${this.errors.meta?.target}`;
+    }
   }
 
   getStatusCodes() {
