@@ -1,8 +1,6 @@
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
-import { commonValidations } from "@/common/utils/commonValidation";
-
 extendZodWithOpenApi(z);
 
 export type User = z.infer<typeof UserSchema>;
@@ -34,6 +32,8 @@ export const UserReturnSchema = UserSchema.omit({
   updatedAt: true,
 });
 
+export const UserIdSchema = UserSchema.pick({ id: true });
+
 // Input Validation for 'GET users' endpoint
 export const GetAllUsersSchema = z.object({
   query: z
@@ -46,11 +46,11 @@ export const GetAllUsersSchema = z.object({
 
 // Input Validation for 'GET users/:id' endpoint
 export const GetUserSchema = z.object({
-  params: z.object({ id: commonValidations.id }),
+  params: UserIdSchema,
 });
 
 export const UpdateUserSchema = z.object({
-  params: z.object({ id: commonValidations.id }),
+  params: UserIdSchema,
   body: UserCreateSchema,
 });
 
