@@ -33,14 +33,14 @@ app.use(requestLogger);
 // Routes
 app.use("/health-check", healthCheckRouter);
 app.use("/users", userRouter);
-// catch non-existing routes
-app.use(() => {
-  throw new AppError("Route not found", StatusCodes.NOT_FOUND);
-});
 
 // Swagger UI
 app.use(openAPIRouter);
 
+// catch non-existing routes
+app.use(() => {
+  throw new AppError("Route not found", StatusCodes.NOT_FOUND);
+});
 // Error handlers
 app.use(errorMiddleware());
 

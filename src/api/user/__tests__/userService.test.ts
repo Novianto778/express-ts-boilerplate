@@ -102,12 +102,7 @@ describe("userService", () => {
       expect(result.statusCode).toEqual(StatusCodes.OK);
       expect(result.success).toBeTruthy();
       expect(result.message).equals("User found");
-      expect(result.data).toEqual({
-        id: mockUser?.id,
-        name: mockUser?.name,
-        email: mockUser?.email,
-        role: mockUser?.role,
-      });
+      expect(result.data).toEqual(mockUser);
     });
 
     it("handles errors for findByIdAsync", async () => {
