@@ -2,12 +2,12 @@ import type { Request, RequestHandler, Response } from "express";
 
 import { userService } from "@/api/user/userService";
 import { handleServiceResponse } from "@/common/utils/httpHandlers";
-import { parseQueryParams } from "@/common/utils/queryParams";
+import { parseQueryOrParams } from "@/common/utils/queryParams";
 import type { GetAllUsers } from "./userModel";
 
 class UserController {
   public getUsers: RequestHandler = async (req: Request, res: Response) => {
-    const queryParams = parseQueryParams<GetAllUsers["query"]>(req);
+    const queryParams = parseQueryOrParams<GetAllUsers["query"]>(req.query);
 
     const serviceResponse = await userService.findAll(queryParams);
     return handleServiceResponse(serviceResponse, res);

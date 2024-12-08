@@ -1,83 +1,59 @@
-import type { GetAllUsers, User, UserCreate } from "@/api/user/userModel";
-import type { QueryFilter } from "@/common/utils/queryParams";
+import type { GetAllUsers, UserCreate, UserId } from "@/api/user/userModel";
+import { prisma } from "@/common/lib/prisma";
+import { queryParamsFilters } from "@/common/utils/queryParams";
+import type { Prisma, User } from "@prisma/client";
 
-export const users: User[] = [
-  {
-    id: 1,
-    name: "Alice",
-    email: "alice@example.com",
-    age: 42,
-    createdAt: new Date(),
-    updatedAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days later
-  },
-  {
-    id: 2,
-    name: "Robert",
-    email: "Robert@example.com",
-    age: 21,
-    createdAt: new Date(),
-    updatedAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days later
-  },
-];
+type SelectUser = Prisma.UserGetPayload<{
+  select?: Record<string, boolean>;
+}>;
+
+type Select = Record<string, boolean>;
 
 export class UserRepository {
-  async findAllAsync(queryParams: GetAllUsers["query"]): Promise<User[]> {
-    const filters: QueryFilter<GetAllUsers["query"]> = {};
-
+  async findAllAsync(queryParams: GetAllUsers["query"], select?: Record<string, boolean>): Promise<SelectUser[]> {
     // Build filters dynamically based on queryParams
-    Object.entries(queryParams).forEach(([key, value]) => {
-      if (value !== undefined) {
-        filters[key] = value;
-      }
-    });
+    const filters = queryParamsFilters(queryParams);
 
     // Apply filters
-    return users.filter((user) => {
-      return Object.entries(filters).every(([key, value]) => {
-        return user[key as keyof User] === value;
-      });
+    return prisma.user.findMany({
+      select: select,
+      where: filters,
     });
   }
 
-  async findByIdAsync(id: number): Promise<User | null> {
-    return users.find((user) => user.id === id) || null;
+  async findByIdAsync(id: UserId, select?: Select): Promise<User | null> {
+    return prisma.user.findUnique({
+      select: select,
+      where: { id: id },
+    });
   }
 
-  async createAsync(user: UserCreate): Promise<User> {
-    const newUser: User = {
-      id: users.length + 1,
-      ...user,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    users.push(newUser);
-    return newUser;
+  async createAsync(user: UserCreate, select?: Select): Promise<User> {
+    return prisma.user.create({
+      select: select,
+      data: user,
+    });
   }
 
-  async updateAsync(id: number, user: UserCreate): Promise<User | null> {
-    const index = users.findIndex((u) => u.id === id);
-    if (index === -1) {
-      return null;
-    }
-    const updatedUser: User = {
-      ...users[index],
-      ...user,
-      updatedAt: new Date(),
-    };
-    users[index] = updatedUser;
-    return updatedUser;
+  async updateAsync(id: UserId, user: UserCreate, select?: Select): Promise<User | null> {
+    return prisma.user.update({
+      select: select,
+      where: { id: id },
+      data: user,
+    });
   }
 
-  async deleteAsync(id: number): Promise<User | null> {
-    const index = users.findIndex((u) => u.id === id);
-    if (index === -1) {
-      return null;
-    }
-    const deletedUser = users.splice(index, 1)[0];
-    return deletedUser;
+  async deleteAsync(id: UserId, select?: Select): Promise<User | null> {
+    return prisma.user.delete({
+      select: select,
+      where: { id: id },
+    });
   }
 
-  async getByEmailAsync(email: string): Promise<User | null> {
-    return users.find((user) => user.email === email) || null;
+  async getByEmailAsync(email: string, select?: Select): Promise<User | null> {
+    return prisma.user.findUnique({
+      select: select,
+      where: { email: email },
+    });
   }
 }

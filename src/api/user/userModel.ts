@@ -1,8 +1,6 @@
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 
-import { commonValidations } from "@/common/utils/commonValidation";
-
 extendZodWithOpenApi(z);
 
 export type User = z.infer<typeof UserSchema>;
@@ -13,15 +11,19 @@ export type GetUser = z.infer<typeof GetUserSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;
 export type GetUserByEmail = z.infer<typeof GetUserByEmailSchema>;
 export type GetAllUsers = z.infer<typeof GetAllUsersSchema>;
+export type UserId = z.infer<typeof UserIdSchema>["id"];
 
 export const UserSchema = z.object({
   id: z.number(),
-  name: z.string(),
   email: z.string().email(),
-  age: z.number(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  name: z.string(),
+  role: z.enum(["ADMIN", "USER"]),
+  password: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
+
+export const UserIdSchema = UserSchema.pick({ id: true });
 
 export const UserCreateSchema = UserSchema.omit({
   id: true,
@@ -32,30 +34,26 @@ export const UserCreateSchema = UserSchema.omit({
 export const UserReturnSchema = UserSchema.omit({
   createdAt: true,
   updatedAt: true,
+  password: true,
 });
 
 // Input Validation for 'GET users' endpoint
 export const GetAllUsersSchema = z.object({
-  query: z
-    .object({
-      age: z.number(),
-      email: z.string().email(),
-    })
-    .partial(),
+  query: UserSchema.pick({ email: true, name: true, role: true }).partial(),
 });
 
 // Input Validation for 'GET users/:id' endpoint
 export const GetUserSchema = z.object({
-  params: z.object({ id: commonValidations.id }),
+  params: UserIdSchema,
 });
 
 export const UpdateUserSchema = z.object({
-  params: z.object({ id: commonValidations.id }),
+  params: UserIdSchema,
   body: UserCreateSchema,
 });
 
 export const GetUserByEmailSchema = z.object({
-  params: z.object({ email: z.string().email() }),
+  params: UserSchema.pick({ email: true }),
 });
 
 export const CreateUserSchema = z.object({
