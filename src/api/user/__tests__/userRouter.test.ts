@@ -8,27 +8,6 @@ import { zodErrorMessage } from "@/common/utils/zodError";
 import { app } from "@/server";
 import type { ZodError } from "zod";
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    name: "Alice",
-    email: "alice@example.com",
-    password: "password",
-    role: "USER",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 2,
-    name: "Bob",
-    email: "bob@example.com",
-    password: "password",
-    role: "USER",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
 describe("User API Endpoints", () => {
   describe("GET /users", () => {
     it("should return a list of users", async () => {
