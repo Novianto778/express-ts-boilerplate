@@ -1,5 +1,6 @@
 import { logger } from "@/server";
-import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
+
+import { Prisma } from "@prisma/client";
 import type { ErrorRequestHandler, RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { ZodError } from "zod";
@@ -44,7 +45,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
       err.getStatusCodes() || StatusCodes.INTERNAL_SERVER_ERROR,
     );
     return handleServiceResponse(errorRes, res);
-  } else if (err instanceof PrismaClientKnownRequestError) {
+  } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
     const error = new PrismaClientError(err);
     const errorRes = ServiceResponse.failure(
       error.getErrors() || "A prisma error occurred",
@@ -52,7 +53,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
       StatusCodes.INTERNAL_SERVER_ERROR,
     );
     return handleServiceResponse(errorRes, res);
-  } else if (err instanceof PrismaClientValidationError) {
+  } else if (err instanceof Prisma.PrismaClientValidationError) {
     const errorRes = ServiceResponse.failure("A prisma validation error occurred", null, StatusCodes.BAD_REQUEST);
     return handleServiceResponse(errorRes, res);
   } else {
