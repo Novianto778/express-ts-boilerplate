@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { join } from "node:path";
+import { env } from "@/common/utils/envConfig";
 import type { Request, RequestHandler, Response } from "express";
 import { StatusCodes, getReasonPhrase } from "http-status-codes";
-import type { LevelWithSilent } from "pino";
+import { type LevelWithSilent, pino } from "pino";
 import { type CustomAttributeKeys, type Options, pinoHttp } from "pino-http";
-
-import { env } from "@/common/utils/envConfig";
 
 enum LogLevel {
   Fatal = "fatal",
@@ -24,20 +24,57 @@ type PinoCustomProps = {
   responseBody: unknown;
 };
 
+const appStreamTransport = pino.transport({
+  target: "pino-roll",
+  options: {
+    file: join("logs", new Date().toISOString().split("T")[0], "app.log"),
+    frequency: "daily",
+    mkdir: true,
+    dateFormat: "yyyy-MM-dd",
+  },
+});
+
+const errorStreamTransport = pino.transport({
+  target: "pino-roll",
+  options: {
+    file: join("logs", new Date().toISOString().split("T")[0], "error.log"),
+    frequency: "daily",
+    mkdir: true,
+    dateFormat: "yyyy-MM-dd",
+  },
+});
+
+const streams = [
+  {
+    level: "info",
+    stream: appStreamTransport,
+  },
+  {
+    level: "error",
+    stream: errorStreamTransport,
+  },
+];
+
+const redact = ["req.headers.authorization", "req.body.password"];
+
 const requestLogger = (options?: Options): RequestHandler[] => {
   const pinoOptions: Options = {
     enabled: env.isProduction,
     customProps: customProps as unknown as Options["customProps"],
-    redact: [],
+    redact: {
+      paths: redact,
+      censor: "[REDACTED]",
+    },
     genReqId,
     customLogLevel,
     customSuccessMessage,
     customReceivedMessage: (req) => `request received: ${req.method}`,
     customErrorMessage: (_req, res) => `request errored with status code: ${res.statusCode}`,
     customAttributeKeys,
+    timestamp: pino.stdTimeFunctions.isoTime,
     ...options,
   };
-  return [responseBodyMiddleware, pinoHttp(pinoOptions)];
+  return [responseBodyMiddleware, pinoHttp(pinoOptions, pino.multistream(streams))];
 };
 
 const customAttributeKeys: CustomAttributeKeys = {
