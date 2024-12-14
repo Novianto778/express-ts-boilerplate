@@ -3,6 +3,7 @@ import { UserRepository } from "@/api/user/userRepository";
 import { UserService } from "@/api/user/userService";
 import { cacheManager } from "@/common/lib/cacheManager";
 import { AppError } from "@/common/models/errorModel";
+import { deleteTestUser, seedTestUser } from "@/common/utils/seeder/userSeeder";
 import { StatusCodes } from "http-status-codes";
 import type { Mock } from "vitest";
 import { userCacheKey } from "../userUtils";
@@ -13,26 +14,16 @@ describe("userService", () => {
   let userServiceInstance: UserService;
   let userRepositoryInstance: UserRepository;
 
-  const mockUsers: User[] = [
-    {
-      id: 1,
-      name: "Alice",
-      email: "alice@example.com",
-      password: "password",
-      role: "USER",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: 2,
-      name: "Bob",
-      email: "bob@example.com",
-      password: "password",
-      role: "USER",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
+  let mockUsers: User[];
+
+  beforeAll(async () => {
+    await deleteTestUser();
+    mockUsers = await seedTestUser();
+  });
+
+  afterAll(async () => {
+    await deleteTestUser();
+  });
 
   beforeEach(async () => {
     userRepositoryInstance = new UserRepository();
@@ -94,7 +85,7 @@ describe("userService", () => {
   describe("findById", () => {
     it("returns a user for a valid ID", async () => {
       // Arrange
-      const testId = 1;
+      const testId = mockUsers[0].id;
       const mockUser = mockUsers.find((user) => user.id === testId);
       (userRepositoryInstance.findByIdAsync as Mock).mockReturnValue(mockUser);
 

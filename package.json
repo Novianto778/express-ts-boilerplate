@@ -18,6 +18,9 @@
     "test": "vitest run",
     "prepare": "husky"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.0.0",
     "@keyv/postgres": "^2.0.4",
