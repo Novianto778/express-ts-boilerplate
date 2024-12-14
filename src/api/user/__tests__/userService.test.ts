@@ -1,9 +1,11 @@
 import type { User } from "@/api/user/userModel";
 import { UserRepository } from "@/api/user/userRepository";
 import { UserService } from "@/api/user/userService";
+import { cacheManager } from "@/common/lib/cacheManager";
 import { AppError } from "@/common/models/errorModel";
 import { StatusCodes } from "http-status-codes";
 import type { Mock } from "vitest";
+import { userCacheKey } from "../userUtils";
 
 vi.mock("@/api/user/userRepository");
 
@@ -32,9 +34,10 @@ describe("userService", () => {
     },
   ];
 
-  beforeEach(() => {
+  beforeEach(async () => {
     userRepositoryInstance = new UserRepository();
     userServiceInstance = new UserService(userRepositoryInstance);
+    await cacheManager.del(userCacheKey.all);
   });
 
   describe("findAll", () => {
@@ -108,7 +111,9 @@ describe("userService", () => {
     it("handles errors for findByIdAsync", async () => {
       // Arrange
       const testId = 1;
-      (userRepositoryInstance.findByIdAsync as Mock).mockRejectedValue(new Error("Database error"));
+      (userRepositoryInstance.findByIdAsync as Mock).mockRejectedValue(
+        new AppError("Database error", StatusCodes.INTERNAL_SERVER_ERROR),
+      );
       try {
         // Act
         const result = await userServiceInstance.findById(testId);
@@ -120,7 +125,7 @@ describe("userService", () => {
         expect(result.data).toBeNull();
       } catch (error) {
         // Assert
-        if (error instanceof Error) {
+        if (error instanceof AppError) {
           expect(error.message).toEqual("Database error");
         }
       }
