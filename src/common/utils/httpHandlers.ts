@@ -7,7 +7,7 @@ export const handleServiceResponse = (serviceResponse: ServiceResponse<any>, res
   return response.status(serviceResponse.statusCode).send(serviceResponse);
 };
 
-export const validateRequest = (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
+export const validateRequest = (schema: ZodSchema) => (req: Request, _res: Response, next: NextFunction) => {
   const query = parseQueryOrParams(req.query);
   const params = parseQueryOrParams(req.params);
 
