@@ -12,6 +12,11 @@ export const validateRequest = (schema: ZodSchema) => (req: Request, _res: Respo
   const query = parseQueryOrParams(req.query);
   const params = parseQueryOrParams(req.params);
 
-  schema.parse({ body: req.body, query, params });
+  const result = schema.parse({ body: req.body, query, params });
+
+  req.body = result.body;
+  req.query = result.query;
+  req.params = result.params;
+
   next();
 };
