@@ -18,4 +18,8 @@ export const env = cleanEnv(process.env, {
     devDefault: testOnly("redis://localhost:6379"),
   }),
   PG_CON: str(),
+  JWT_SECRET: str(),
+  JWT_REFRESH_SECRET: str(),
+  JWT_EXPIRES_IN: str({ devDefault: testOnly("15m") }),
+  JWT_REFRESH_EXPIRES_IN: str({ devDefault: testOnly("7d") }),
 });

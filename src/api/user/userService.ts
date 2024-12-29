@@ -5,6 +5,7 @@ import { UserRepository } from "@/api/user/userRepository";
 import { cacheManager } from "@/common/lib/cacheManager";
 import { AppError } from "@/common/models/errorModel";
 import { ServiceResponse } from "@/common/models/serviceResponse";
+import { hashPassword } from "@/common/utils/bcrypt";
 import { generatePrismaSelect } from "@/common/utils/prisma";
 import { userCacheKey } from "./userUtils";
 
@@ -62,6 +63,14 @@ export class UserService {
 
   // Creates a new user in the database
   async create(user: UserCreate): Promise<ServiceResponse<User>> {
+    const userExists = await this.userRepository.getByEmailAsync(user.email, this.select);
+    if (userExists) {
+      throw new AppError("User already exist", StatusCodes.CONFLICT);
+    }
+
+    const hashedPassword = await hashPassword(user.password);
+    user.password = hashedPassword;
+
     const newUser = await this.userRepository.createAsync(user, this.select);
 
     await cacheManager.del(userCacheKey.all);

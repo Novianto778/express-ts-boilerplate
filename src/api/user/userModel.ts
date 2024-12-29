@@ -34,7 +34,7 @@ export const UserCreateSchema = UserSchema.omit({
 export const UserReturnSchema = UserSchema.omit({
   createdAt: true,
   updatedAt: true,
-  password: true,
+  // password: true,
 });
 
 // Input Validation for 'GET users' endpoint

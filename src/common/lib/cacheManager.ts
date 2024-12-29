@@ -1,22 +1,11 @@
 import { logger } from "@/server";
 import KeyvPostgres from "@keyv/postgres";
-import KeyvRedis from "@keyv/redis";
 import { createCache } from "cache-manager";
 import { CacheableMemory } from "cacheable";
 import { Keyv } from "keyv";
 import { trackMetrics } from "../utils/cache";
 import { env } from "../utils/envConfig";
-
-const redisOptions = {
-  url: env.REDIS_URL, // The Redis server URL (use 'rediss' for TLS)
-  socket: {
-    host: "localhost", // Hostname of the Redis server
-    port: 6379, // Port number
-    reconnectStrategy: (retries: number) => Math.min(retries * 50, 2000), // Custom reconnect logic
-    tls: false, // Enable TLS if you need to connect over SSL
-    keepAlive: 30000, // Keep-alive timeout (in milliseconds)
-  },
-};
+import { redisStore } from "./redis";
 
 // Multiple stores
 const cache = createCache({
@@ -29,13 +18,7 @@ const cache = createCache({
       "Memory",
     ),
 
-    //  Redis Store
-    trackMetrics(
-      new Keyv({
-        store: new KeyvRedis(redisOptions),
-      }),
-      "Redis",
-    ),
+    redisStore,
 
     // postgres store
     trackMetrics(
